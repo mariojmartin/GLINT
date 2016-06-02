@@ -1,5 +1,7 @@
 /***
-Author: Mario J. Martin <dominonurbs$gmail.com>
+Copyright (c) 2016 Mario J. Martin-Burgos <dominonurbs$gmail.com>
+This softaware is licensed under Apache 2.0 license
+http://www.apache.org/licenses/LICENSE-2.0
 
 *******************************************************************************/
 

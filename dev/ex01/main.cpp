@@ -2,6 +2,10 @@
 #include <stdio.h>
 #include "gparser/gparser.h"
 
+/* Values in the variable is in the .pvalue field, 
+* which can point to different data types.
+* Check .type and cast to the correct variable 
+* The following function just do that. */
 static void display_var( const gVariable var )
 {
     switch (var.type){
@@ -50,16 +54,18 @@ static void display_var( const gVariable var )
     }
 }
 
-int main( int argc, char* argv[] )
+/* To simply parser a string only two functions are needed. */
+void simple_example()
 {
     char command[] = "1+2+3";
 
-    /* First we need to create a parser */
+    /* First create a parser */
     gParser* parser = gParser_create();
 
-    /* Solves the string using the parser */
+    /* Calculate the aritmetic operations in the string using the parser */
     int status = gParser_command( parser, command );
 
+    /* Check the results */
     if (status == GPARSE_OK){
         /* The solution of the operation is stored in ans */ 
         /* To directly obtain the value as a double */
@@ -82,3 +88,9 @@ int main( int argc, char* argv[] )
     getchar();
 }
 
+/* To simply parser a string only two functions are needed. */
+int main( int argc, char* argv[] )
+{
+    printf( "
+    simple_example();
+}

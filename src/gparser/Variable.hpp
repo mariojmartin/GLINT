@@ -1,8 +1,10 @@
 /***
-Author: Mario J. Martin <dominonurbs$gmail.com>
+Copyright (c) 2016 Mario J. Martin-Burgos <dominonurbs$gmail.com>
+This softaware is licensed under Apache 2.0 license
+http://www.apache.org/licenses/LICENSE-2.0
 
-Variable types look for simplicity but also compatibility with C.
 
+Variable types aim to have a good compatibility with  C.
 
 bool: Boolean type that only admits true and false
 byte: equivalent to an integer of 8 bits
