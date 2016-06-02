@@ -11,7 +11,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gparser", "src\gparser\gpar
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zdev03_functions", "dev\zdev03\zdev03.vcxproj", "{C32D4DC4-8AEC-400C-8269-A2A6C8625072}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ex01", "dev\ex01\ex01.vcxproj", "{2375D293-C9CE-4E9B-941A-094DC5BDC103}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ex01", "examples\ex01.vcxproj", "{2375D293-C9CE-4E9B-941A-094DC5BDC103}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
