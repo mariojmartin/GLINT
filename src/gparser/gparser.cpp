@@ -522,35 +522,35 @@ static int dual_operation
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
-    case token_bitand: /* ans = a || b */
+    case token_bitand: /* ans = a & b */
         if (numeric_bit_and( ans, &b, parser )){
             parser->code_pos = op->str_ini;
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
 
-    case token_bitxor: /* ans = a || b */
+    case token_bitxor: /* ans = a xor b */
         if (numeric_bit_xor( ans, &b, parser )){
             parser->code_pos = op->str_ini;
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
 
-    case token_bitor: /* ans = a || b */
+    case token_bitor: /* ans = a | b */
         if (numeric_bit_or( ans, &b, parser )){
             parser->code_pos = op->str_ini;
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
 
-    case token_lshift: /* ans = a || b */
+    case token_lshift: /* ans = a << b */
         if (numeric_lshift( ans, &b, parser )){
             parser->code_pos = op->str_ini;
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
 
-    case token_rshift: /* ans = a || b */
+    case token_rshift: /* ans = a >> b */
         if (numeric_rshift( ans, &b, parser )){
             parser->code_pos = op->str_ini;
             return GPARSE_ERROR;

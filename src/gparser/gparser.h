@@ -1,4 +1,5 @@
-/***
+/** @file
+
 Copyright (c) 2016 Mario J. Martin-Burgos <dominonurbs$gmail.com>
 This softaware is licensed under Apache 2.0 license
 http://www.apache.org/licenses/LICENSE-2.0
@@ -13,7 +14,8 @@ http://www.apache.org/licenses/LICENSE-2.0
 #if defined(__cplusplus)
 extern "C" {
 #endif
-    /** Creates a new parser */
+    /** 
+    Creates a new parser */
     gParser* gParser_create();
 
     /** Releases memory resources */
@@ -21,10 +23,10 @@ extern "C" {
 
     /** 
     Executes the arithmetic operations in the string.
-    \param parser Pointer to the parser object. The result of the arithmetic 
+    @param parser Pointer to the parser object. The result of the arithmetic 
     operations is stored in parser->ans
-    \param code String with the operations to be parsed
-    \return 
+    @param code String with the operations to be parsed
+    @return 
         - GPARSE_OK if the command is succesfully parsed
         - GPARSE_ERROR if there is a syntactic error 
         - GPARSE_NO_COMMAND if the string is empty

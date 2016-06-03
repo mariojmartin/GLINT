@@ -1,4 +1,4 @@
-GLINT is a free Open Source syntactic analyzer written in C. 
+Glubs is a free Open Source syntactic analyzer written in C. 
 The most common use is for implementing a calculator into existing applications.
 
-GLINT is licensed under Apache 2.0 license.
+Glubs is licensed under Apache 2.0 license.
