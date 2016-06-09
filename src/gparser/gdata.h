@@ -34,11 +34,11 @@ enum BasicTypes
 {
     t_undefined = 0,
     t_bool = 1,
-    t_byte = -10,
-    t_int = -11,
-    t_l64 = -12,
-    t_float = -21,
-    t_double = -22,
+    t_byte = -10,   
+    t_int = -11,    
+    t_l64 = -12,    
+    t_float = -21,  
+    t_double = -22
 };
 
 #define TYPE(type) t_##type
@@ -49,6 +49,7 @@ enum BasicTypes
 #define t__float_   t_float
 #define t__double_  t_double
 
+/* Data structure to hold variables */
 typedef struct
 {
     int type;
@@ -56,6 +57,12 @@ typedef struct
     char* name;
     void* pvalue;
 }gVariable;
+
+/* Data structure to hold structures */
+typedef struct
+{
+    char* name;
+}gStruct;
 
 /* Stores errors and warnings messages */
 //typedef struct _gOutMsg
@@ -74,8 +81,8 @@ typedef struct
     char* err_msg;
     gVariable ans;
 
-    /* Set to 0: default, 1: allow, -1: not allow */
-    int explicit_declarations;
+    /* Set to 0: default, 1: allow implicit declarations */
+    int option_explicit_decl;
 }gParser;
 
 #endif /* H_GDATA_H */

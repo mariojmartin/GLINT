@@ -1091,15 +1091,15 @@ inline int numeric_equal
         return GPARSE_OK;
     }
     case t_float:
-        parser_error( parser, 
-            "a==b between floating point numbers is not a valid operation."
-            " Consider using \"abs(a-b) < eps\"." );
-        return GPARSE_ERROR;
+        /* a==b between floating point numbers is not a good idea."
+        * Consider using \"abs(a-b) < eps\"." ); */
+        numeric_set( ans, _bool_( ans->pool.vfloat == right->pool.vfloat ) );
+        return GPARSE_OK;
     case t_double:
-        parser_error( parser,
-            "a==b between floating point numbers is not a valid operation."
-            " Consider using \"abs(a-b) < eps\"." );
-        return GPARSE_ERROR;
+        /* a==b between floating point numbers is not a good idea."
+        * Consider using \"abs(a-b) < eps\"." ); */
+        numeric_set( ans, _bool_( ans->pool.vdouble == right->pool.vdouble ) );
+        return GPARSE_OK;
 
     default:
         parser_error( parser, "Operation not defined between types (%s) (%s)"

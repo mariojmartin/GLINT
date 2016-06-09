@@ -81,12 +81,12 @@ void check_parser_char2num()
 {
     gParser* parser = gParser_create();
 
-    check_parser( parser, "0" );    printf( "\t0\n" );
-    check_parser( parser, "1" );    printf( "\t1\n" );
-    check_parser( parser, "10" );   printf( "\t10\n" );
-    check_parser( parser, "19" );   printf( "\t19\n" );
-    check_parser( parser, "019" );  printf( "\t19\n" );
-    check_parser( parser, "0190" ); printf( "\t190\n" );
+    check_parser( parser, "0" );    printf( "\t0i\n" );
+    check_parser( parser, "1" );    printf( "\t1i\n" );
+    check_parser( parser, "10" );   printf( "\t10i\n" );
+    check_parser( parser, "19" );   printf( "\t19i\n" );
+    check_parser( parser, "019" );  printf( "\t19i\n" );
+    check_parser( parser, "0190" ); printf( "\t190i\n" );
 
     gParser_dispose( parser );
 }
@@ -95,11 +95,11 @@ void check_parser_unitary_sign()
 {
     gParser* parser = gParser_create();
 
-    check_parser( parser, "+1" );       printf( "\t1\n" );
-    check_parser( parser, " - 1 " );    printf( "\t-1\n" );
-    check_parser( parser, " +-3 " );    printf( "\t-3\n" );
-    check_parser( parser, " - +3 " );   printf( "\t-3\n" );
-    check_parser( parser, " - - +3 " ); printf( "\t3\n" );
+    check_parser( parser, "+1" );       printf( "\t1i\n" );
+    check_parser( parser, " - 1 " );    printf( "\t-1i\n" );
+    check_parser( parser, " +-3 " );    printf( "\t-3i\n" );
+    check_parser( parser, " - +3 " );   printf( "\t-3i\n" );
+    check_parser( parser, " - - +3 " ); printf( "\t3i\n" );
 
     gParser_dispose( parser );
 }
@@ -108,13 +108,13 @@ void check_parser_plus_minus()
 {
     gParser* parser = gParser_create();
 
-    check_parser( parser, " 1 + 2 " );      printf( "\t3\n" );
-    check_parser( parser, " 1 + 1 + 01 " ); printf( "\t3\n" );
-    check_parser( parser, " +1+1+ +1" );    printf( "\t3\n" );
-    check_parser( parser, " 4 - 1" );       printf( "\t3\n" );
-    check_parser( parser, " 6 - 1 - 2" );   printf( "\t3\n" );
-    check_parser( parser, " -1 + 4" );      printf( "\t3\n" );
-    check_parser( parser, " 1 + 2 - 3 -+-+ 3" ); printf( "\t3\n" );
+    check_parser( parser, " 1 + 2 " );      printf( "\t3i\n" );
+    check_parser( parser, " 1 + 1 + 01 " ); printf( "\t3i\n" );
+    check_parser( parser, " +1+1+ +1" );    printf( "\t3i\n" );
+    check_parser( parser, " 4 - 1" );       printf( "\t3i\n" );
+    check_parser( parser, " 6 - 1 - 2" );   printf( "\t3i\n" );
+    check_parser( parser, " -1 + 4" );      printf( "\t3i\n" );
+    check_parser( parser, " 1 + 2 - 3 -+-+ 3" ); printf( "\t3i\n" );
 
     gParser_dispose( parser );
 }
@@ -124,12 +124,12 @@ void check_parser_mul_div()
     gParser* parser = gParser_create();
 
     /* It is solved from left to right */
-    check_parser( parser, "2*3" );      printf( "\t6\n" );
-    check_parser( parser, "4/2" );      printf( "\t2\n" );
-    check_parser( parser, "4/2/2" );    printf( "\t1\n" );
-    check_parser( parser, "2*3/2" );    printf( "\t3\n" );
-    check_parser( parser, "2*3/2*2" );  printf( "\t6\n" );
-    check_parser( parser, "1+8/2-2" );  printf( "\t3\n" );
+    check_parser( parser, "2*3" );      printf( "\t6i\n" );
+    check_parser( parser, "4/2" );      printf( "\t2d\n" );
+    check_parser( parser, "4/2/2" );    printf( "\t1d\n" );
+    check_parser( parser, "2*3/2" );    printf( "\t3d\n" );
+    check_parser( parser, "2*3/2*2" );  printf( "\t6d\n" );
+    check_parser( parser, "1+8/2-2" );  printf( "\t3d\n" );
 
     gParser_dispose( parser );
 }
@@ -139,9 +139,9 @@ void check_parser_mul_plus()
     gParser* parser = gParser_create();
 
     /* It is solved from left to right */
-    check_parser( parser, "2*+3" );      printf( "\t6\n" );
-    check_parser( parser, "-4/-2" );      printf( "\t2\n" );
-    check_parser( parser, "4/+-+-2/2" );    printf( "\t1\n" );
+    check_parser( parser, "2*+3" );      printf( "\t6i\n" );
+    check_parser( parser, "-4/-2" );      printf( "\t2d\n" );
+    check_parser( parser, "4/+-+-2/2" );    printf( "\t1d\n" );
 
     gParser_dispose( parser );
 }
@@ -169,14 +169,14 @@ void check_parser_decimal()
     check_parser( parser, "3/2" );      printf( "\t1.5\n" );
 
     /* Integer division is indicated by %% */
-    check_parser( parser, "5%%2" );   printf( "\t2\n" );
-    check_parser( parser, "5.0%%2" );   printf( "\t2\n" );
-    check_parser( parser, "5%%2.0" );   printf( "\t2\n" );
-    check_parser( parser, "5.0%%2.0" );   printf( "\t2\n" );
-    check_parser( parser, "5L%%2L" );   printf( "\t2\n" );
+    check_parser( parser, "5%%2" );   printf( "\t2i\n" );
+    check_parser( parser, "5.0%%2" );   printf( "\t2i\n" );
+    check_parser( parser, "5%%2.0" );   printf( "\t2i\n" );
+    check_parser( parser, "5.0%%2.0" );   printf( "\t2i\n" );
+    check_parser( parser, "5L%%2L" );   printf( "\t2L\n" );
 
     /* Remainder */
-    check_parser( parser, "5%2" );   printf( "\t1\n" );
+    check_parser( parser, "5%2" );   printf( "\t1i\n" );
 
     gParser_dispose( parser );
 }
@@ -210,7 +210,7 @@ void check_parser_float()
     check_parser( parser, "0.00314e2f*10." );   printf( "\t3.14d\n" );
     check_parser( parser, "0.00314e2f*10f" );   printf( "\t3.14f\n" );
     check_parser( parser, "0.000000000001" );   printf( "\t1e-12\n" );
-    check_parser( parser, "0.000000000001f" );  printf( "\tPrecision error?\n" );
+    check_parser( parser, "0.000000000001f" );  printf( "\t0f Precision error?\n" );
     check_parser( parser, "0.000000000001e12" ); printf( "\t1d\n" );
     check_parser( parser, "1000000000000e-12f" ); printf( "\t1f\n" );
     check_parser( parser, "300e-2*0.2e1/1e0f" ); printf( "\t6\n" );
@@ -239,6 +239,7 @@ void check_pow()
 {
     gParser* parser = gParser_create();
     check_parser( parser, "2**2" );      printf( "\t4d\n" );
+    check_parser( parser, "2^2" );      printf( "\t4d\n" );
     check_parser( parser, "2**-2" );     printf( "\t0.25d\n" );
     check_parser( parser, "2f**-2" );    printf( "\t0.25f\n" );
     check_parser( parser, "2**-2f" );    printf( "\t0.25f\n" );
@@ -254,17 +255,17 @@ void check_pow()
 void check_round_bracket()
 {
     gParser* parser = gParser_create();
-    check_parser( parser, "(2)" );               printf( "\t2\n" );
-    check_parser( parser, "(2+2)" );             printf( "\t4\n" );
-    check_parser( parser, "2*(2+2)" );           printf( "\t8\n" );
-    check_parser( parser, "2*((2+2)*(2-3))" );   printf( "\t-8\n" );
-    check_parser( parser, "2*(((2+2)*(2-3)))" ); printf( "\t-8\n" );
-    check_parser( parser, "(2)*((2+2)*(2-3))" ); printf( "\t-8\n" );
-    check_parser( parser, "-2*(2+2)+2-2" ); printf( "\t-8\n" );
+    check_parser( parser, "(2)" );               printf( "\t2i\n" );
+    check_parser( parser, "(2+2)" );             printf( "\t4i\n" );
+    check_parser( parser, "2*(2+2)" );           printf( "\t8i\n" );
+    check_parser( parser, "2*((2+2)*(2-3))" );   printf( "\t-8i\n" );
+    check_parser( parser, "2*(((2+2)*(2-3)))" ); printf( "\t-8i\n" );
+    check_parser( parser, "(2)*((2+2)*(2-3))" ); printf( "\t-8i\n" );
+    check_parser( parser, "-2*(2+2)+2-2" ); printf( "\t-8i\n" );
 
-    check_parser( parser, "1 + 2*(((2+2)*(2-3)) + 1" );
-    check_parser( parser, "1 + ((2)*((2+2)*(2-3)) + 1" );
-    check_parser( parser, "1 + (2))*((2+2)*(2-3)) + 1" );
+    check_parser( parser, "1 + 2*(((2+2)*(2-3)) + 1" ); printf( "\tunmatching brackets!\n" );
+    check_parser( parser, "1 + ((2)*((2+2)*(2-3)) + 1" ); printf( "\tunmatching brackets!\n" );
+    check_parser( parser, "1 + (2))*((2+2)*(2-3)) + 1" ); printf( "\tunmatching brackets!\n" );
 
     gParser_dispose( parser );
     _CrtDumpMemoryLeaks();
@@ -286,6 +287,7 @@ void check_comparisons()
     check_parser( parser, "3<3.0000000001" ); printf( "\tfalse\n" );
     check_parser( parser, "3<3.0000001f" ); printf( "\tfalse Precision error?\n" );
     check_parser( parser, "1f/3==1f/3" );       printf( "\ttrue\n" );
+    check_parser( parser, "1./3==1./3" );       printf( "\ttrue\n" );
     check_parser( parser, "true!=false" );      printf( "\ttrue\n" );
     check_parser( parser, "3==1+1+1" );         printf( "\ttrue\n" );
     check_parser( parser, "3.1f==3.1" );         printf( "\tfalse\n" );
@@ -312,9 +314,6 @@ void check_bitoperands()
     printf( "\t%i\n", 0xFFF0F0F0 & 0x33333333 );
 
     check_parser( parser, "0xFFF0F0F0 xor 0x33333333" );
-    printf( "\t%u\n", 0xFFF0F0F0 ^ 0x33333333 );
-
-    check_parser( parser, "0xFFF0F0F0 ^ 0x33333333" );
     printf( "\t%u\n", 0xFFF0F0F0 ^ 0x33333333 );
 
     check_parser( parser, "0xFFF0F0F0 | 0x33333333" );

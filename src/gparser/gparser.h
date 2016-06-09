@@ -33,8 +33,25 @@ extern "C" {
      */
     int gParser_command( gParser* parser, const char* code );
 
+    /** Adds a variable in global scope 
+    @param parser Pointer to the parser object.
+    @varname Variable name. Must follow the names convention for variables.
+    @return The variable created or nullptr if there is a problem.
+    */
+    gVariable* gParser_addVariable
+        ( gParser* gparser, const char* varname, const int vartype, void* pdata );
+        
+    /** Find a variable by name in the parser global scope 
+    @param parser Pointer to the parser object.
+    @varname Variable name. 
+    @return The variable created or nullptr if the variable is not declared.
+    */
+   gVariable* gParser_findVariable( gParser* gparser, const char* varname );
+
     /** Cast a variable into double. */
     double gVariable_getasDouble( const gVariable var );
+
+
 #if defined(__cplusplus)
 }
 #endif

@@ -269,52 +269,59 @@ static const Token* get_dual_operand
 static int unary_operands
     ( Numeric* ans
     , Parser* parser, Struct* strwct
-    , const Token* _restrict_ const tok_ini
+    , const Token* _restrict_ const tok_loperand
+    , const Token* _restrict_ const tok_rterm
     , const Token* _restrict_ const tok_end
     )
 {
-    int status = parse_command( ans, parser, strwct, tok_ini + 1, tok_end );
+    int status = parse_command( ans, parser, strwct, tok_rterm, tok_end );
     if (status){
         return status;
     }
 
-    switch (tok_ini->token_type){
+    switch (tok_loperand->token_type){
     case token_plus: /* ans = +ans */
         /* The '+' do nothing, but expects a numeric value */
         if (numeric_plus( ans, parser )){
+            parser->code_pos = tok_loperand->str_ini;
+            parser_error( parser, "Invalid operation" );
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
 
     case token_minus: /* ans = -ans; */ 
         if (numeric_neg( ans, parser )){
-            parser->code_pos = tok_end->str_ini;
+            parser->code_pos = tok_loperand->str_ini;
+            parser_error( parser, "Invalid operation" );
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
 
     case token_not: /* ans = !ans */
         if (numeric_not( ans, parser )){
-            parser->code_pos = tok_end->str_ini;
+            parser->code_pos = tok_loperand->str_ini;
+            parser_error( parser, "Invalid operation" );
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
 
     case token_bitinv: /* ans = ~ans */
         if (numeric_bitinv( ans, parser )){
-            parser->code_pos = tok_end->str_ini;
+            parser->code_pos = tok_loperand->str_ini;
+            parser_error( parser, "Invalid operation" );
             return GPARSE_ERROR;
         }
         return GPARSE_OK;
     case token_vartype: /* casting (convert one type to another) */
-        if (numeric_explicit_cast( ans, tok_ini->var_type )){
-            parser_error( parser, "Cannot cast" );
-            parser->code_pos = tok_end->str_ini;
+        if (numeric_explicit_cast( ans, tok_loperand->var_type )){
+            parser_error( parser, "Invalid type for cast" );
+            parser->code_pos = tok_loperand->str_ini;
         }
         break;
 
     default:
         parser_error( parser, "Unknown operation" );
+        parser->code_pos = tok_loperand->str_ini;
         return GPARSE_ERROR;
     }
 
@@ -373,9 +380,23 @@ static int unary_operation
     , const int operator_mask
     )
 {
-    if ( (tok_ini->token_type & operator_mask) != 0){
-        if (tok_ini < tok_end){
-            return unary_operands( ans, parser, strwct, tok_ini, tok_end );
+    const Token* tok_loperand = tok_ini;
+    const Token* tok_rterm = tok_ini + 1;
+
+    /* Ignore the brackets for the (type) structures */
+    if (tok_ini->token_type == token_bracket_round_open){
+        if (tok_ini + 2 < tok_end 
+            && (tok_ini + 2)->token_type == token_bracket_round_close)
+        {
+            tok_loperand = tok_ini + 1;
+            tok_rterm = tok_ini + 3;
+        }
+    }
+
+    if ((tok_loperand->token_type & operator_mask) != 0){
+        if (tok_rterm <= tok_end){
+            return unary_operands
+                ( ans, parser, strwct, tok_loperand, tok_rterm, tok_end );
         }
         else{
             parser_error( parser, "Expecting expression" );
@@ -582,8 +603,8 @@ static int assign_operation
         return status;
     }
 
-    /* Gets the left variable */
-    if (parser->explicit_declarations != 0){
+    if (parser->option_explicit_decl == 0){
+        /* Only explicit declarations are allowed */
         Variable* var = strwct->find_variable( tok_ini->str_ini, tok_ini->str_end );
         if (var == nullptr){
             parser_error( parser, "Undeclared variable" );
@@ -612,6 +633,7 @@ static int assign_operation
 
         /* Copy the right value to the variable */
         variable_assign( var, ans );
+
         return GPARSE_OK;
     }
     else{ /* Implicit declarations allowed */
@@ -624,6 +646,7 @@ static int assign_operation
 
         /* Assign and cast the variable to the right term */
         variable_dynamic_assign( var, ans );
+        var->free_data = true;
     }
 
     return GPARSE_OK;
@@ -648,6 +671,9 @@ int parse_command( Numeric* ans, Parser* parser, Struct* strwct
                 parser->code_pos = tok_ini->str_ini;
                 return GPARSE_ERROR;
             }
+            return GPARSE_OK;
+        case token_varname:
+            variable_assign_numeric( ans, tok_ini->pvar );
             return GPARSE_OK;
         case token_name:{
             /* Find the variable */
@@ -727,11 +753,15 @@ int parse_var_declaration( Parser* parser, Struct* strwct
 {
     /* Create the variable */
     int status;
+
     Variable* var = strwct->add_variable
         ( token_name->str_ini, token_name->str_end, &status );
 
+    /* The variable data is handled by the parser */
+    var->free_data = true;
+
     if (status != GPARSE_NEW_NAME){
-        parser_error( parser, "Variable already declared" );
+        parser_error( parser, "Variable name is already declared" );
         parser->code_pos = token_name->str_ini;
         return GPARSE_ERROR;
     }
@@ -766,7 +796,7 @@ int parse_var_declaration( Parser* parser, Struct* strwct
         }
     }
     else{
-        /* Initialize the variable to the default '0' */
+        /* Initialize the variable to default '0' */
         memset( var->pvalue, 0, var->size );
         return GPARSE_OK;
     }
@@ -807,7 +837,25 @@ int parser_structure
     return GPARSE_NO_COMMAND;
 }
 
-int parser_instruction_block( Parser* parser, Struct* strwct )
+/* Detect already declared variables. */
+static void detect_declared_variables( Parser* parser, const Struct* strwct )
+{
+    const Token* tok_end = parser->tokens + parser->num_tokens - 1;
+
+    Token* tok = parser->tokens;
+    while (tok <= tok_end){
+        if (tok->token_type == token_name){
+            tok->pvar = strwct->find_variable( tok->str_ini, tok->str_end );
+            if (tok->pvar != nullptr){
+                tok->token_type = token_varname;
+            }
+        }
+
+        tok++;
+    }
+}
+
+static int parser_instruction_block( Parser* parser, Struct* strwct )
 {
     int status;
     Numeric ans;
@@ -822,30 +870,46 @@ int parser_instruction_block( Parser* parser, Struct* strwct )
     tok_end = parser->tokens + parser->num_tokens - 1;
 
     if (tok_ini < tok_end && tok_ini->token_type == token_vartype){
-        /* It is a variable declaration */
+        /* Maybe it is a variable declaration */
         const Token* tok_name = tok_ini < tok_end ? tok_ini + 1 : nullptr;
-        if (tok_name != nullptr && tok_name->token_type == token_name){
-            const Token* tok_comma = tok_name;
-            const Token* tok_blockend = tok_name;
-            while (tok_comma <= tok_end){
-                tok_name = tok_comma;
-                while (tok_comma < tok_end && tok_comma->token_type != token_comma){
+        if (tok_name != nullptr){
+            if (tok_name->token_type == token_name){
+                const Token* tok_comma = tok_name;
+                const Token* tok_blockend = tok_name;
+                while (tok_comma <= tok_end){
+                    tok_name = tok_comma;
+                    while (tok_comma < tok_end && tok_comma->token_type != token_comma){
+                        tok_comma++;
+                    }
+                    if (tok_comma->token_type == token_comma){
+                        tok_blockend = tok_comma - 1;
+                    }
+                    else{
+                        tok_blockend = tok_comma;
+                    }
+                    status = parse_var_declaration( parser, strwct, tok_ini, tok_name, tok_blockend );
+                    if (status != GPARSE_OK){
+                        return status;
+                    }
                     tok_comma++;
                 }
-                if (tok_comma->token_type == token_comma){
-                    tok_blockend = tok_comma - 1;
-                }
-                else{
-                    tok_blockend = tok_comma;
-                }
-                status = parse_var_declaration( parser, strwct, tok_ini, tok_name, tok_blockend );
-                tok_comma++;
+                return GPARSE_OK;
             }
-        }
-        else{
-            parser_error( parser, "Expecting a variable name" );
-            parser->code_pos = tok_ini->str_end;
-            return GPARSE_ERROR;
+            else if (tok_name->token_type == token_varname){
+                parser_error( parser, "Variable name is already declared" );
+                parser->code_pos = tok_name->str_ini;
+                return GPARSE_ERROR;
+            }
+            else if (tok_name->token_type == token_struct){
+                parser_error( parser, "Name is already declared as structure" );
+                parser->code_pos = tok_name->str_ini;
+                return GPARSE_ERROR;
+            }
+            else if (tok_name->token_type == token_function){
+                parser_error( parser, "Name is already declared as function" );
+                parser->code_pos = tok_name->str_ini;
+                return GPARSE_ERROR;
+            }
         }
     }
     else if (tok_ini->token_type == token_struct){
@@ -863,6 +927,7 @@ int parser_instruction_block( Parser* parser, Struct* strwct )
             const Token* tok_block = tok_name < tok_end ? tok_name + 1 : nullptr;
             Parser* local_parser = new Parser();
             parser_code( local_parser, str, tok_block->str_ini + 1, tok_block->str_end - 1 );
+            return GPARSE_OK;
         }
         else{
             parser_error( parser, "Expecting a structure name" );
@@ -874,17 +939,16 @@ int parser_instruction_block( Parser* parser, Struct* strwct )
         /* It is a function declaration */
 
     }
-    else{
-        status = parse_command( &ans, parser, strwct, parser->tokens, tok_end );
-        if (status == GPARSE_OK){
-            variable_dynamic_assign( &parser->ans, &ans );
-        }
+
+    status = parse_command( &ans, parser, strwct, parser->tokens, tok_end );
+    if (status == GPARSE_OK){
+        variable_dynamic_assign( &parser->ans, &ans );
     }
 
     return status;
 }
 
-int parser_code( Parser* parser, Struct* str
+static int parser_code( Parser* parser, Struct* str
 , const char* code_ini, const char* code_end )
 {
     if (code_ini == nullptr){
@@ -912,9 +976,13 @@ int parser_code( Parser* parser, Struct* str
         if (code_block == nullptr)
             return GPARSE_ERROR;
 
+        /* Checks the names to identify already declared variables or functions */
+        detect_declared_variables( parser, str );
+
+        /* Solves the command */
         status = parser_instruction_block( parser, str );
 
-        /* Restart the parser each code block */
+        /* Restart the parser as there are no tokens */
         parser->num_tokens = 0;
 
         if (status == GPARSE_ERROR){
@@ -943,3 +1011,37 @@ int gParser_command( gParser* gparser, const char* code )
     return status;
 }
 
+
+extern "C"
+gVariable* gParser_addVariable
+( gParser* gparser, const char* varname, const int vartype, void* pdata )
+{
+    Parser* parser = (Parser*)gparser;
+    if (parser == nullptr){
+        return nullptr;
+    }
+
+    /* Add the variable in global scope */
+    int status;
+    Variable* pvar = parser->global.add_variable
+        ( &varname[0], &varname[strlen(varname)], &status );
+
+    if (pvar != nullptr){
+        pvar->type = vartype;
+        pvar->pvalue = pdata;
+    }
+
+    return pvar;
+}
+
+
+extern "C"
+gVariable* gParser_findVariable( gParser* gparser, const char* varname )
+{
+    Parser* parser = (Parser*)gparser;
+    if (parser == nullptr){
+        return nullptr;
+    }
+
+    return parser->global.find_variable( &varname[0], &varname[strlen( varname )] );
+}

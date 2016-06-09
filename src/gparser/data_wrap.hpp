@@ -37,11 +37,13 @@ http://www.apache.org/licenses/LICENSE-2.0
 enum TokenType : unsigned int
 {
     token_null = 0,
-    token_name = NAME_MASK,         // A variable or function
-    token_literal_number = NAME_MASK + 1,  // 1, 1.5f, ...
-    token_literal_true = NAME_MASK + 2,    // true
-    token_literal_false = NAME_MASK + 3,   // false
-    token_vartype = VARTYPE_MASK,   // bool, int, double, ...
+    token_end = 1,
+    token_name = NAME_MASK, // A name; maybe an undeclared variable or function
+    token_literal_number = NAME_MASK + 1,   // 1, 1.5f, ...
+    token_literal_true = NAME_MASK + 2,     // true
+    token_literal_false = NAME_MASK + 3,    // false
+    token_varname = NAME_MASK + 4,          // A declared variable
+    token_vartype = VARTYPE_MASK,           // bool, int, double, ...
 
     /* Unary */
     token_bitinv = UNARY_MASK + 1,   // ~
@@ -97,9 +99,10 @@ enum TokenType : unsigned int
     token_intdiv_assign = ASSIGN_MASK + 5,      // /%=
     token_bitand_assign = ASSIGN_MASK + 6,      // &=
     token_bitor_assign = ASSIGN_MASK + 7,       // |=
-    token_bitxor_assign = ASSIGN_MASK + 8,         // ^=
-    token_bitor_lshiftassign = ASSIGN_MASK + 9, // <<=
-    token_bitor_rshiftassign = ASSIGN_MASK + 10,// >>=
+    token_bitxor_assign = ASSIGN_MASK + 8,      // xor=
+    token_bitor_lshiftassign = ASSIGN_MASK + 9,  // <<=
+    token_bitor_rshiftassign = ASSIGN_MASK + 10, // >>=
+    token_power_assign = ASSIGN_MASK + 11,       // **=
 
     /* Posit */
     token_plusplus = POSTFIT_MASK + 1,       // ++
@@ -266,6 +269,8 @@ struct BinaryTree : T
 
 struct Variable : gVariable
 {
+    bool free_data;
+
     Variable( char* _varname )
     {
         memset( this, 0, sizeof( Variable ) );
@@ -274,13 +279,14 @@ struct Variable : gVariable
 
     ~Variable(){
         free( name );
-        free( pvalue );
+        if (free_data){
+            free( pvalue );
+        }
     }
 };
 
-struct Struct
+struct Struct : gStruct
 {
-    char* name;
     int nvars;
     BinaryTree< Variable >* vars;
     BinaryTree< Struct >* strs;
@@ -337,8 +343,9 @@ struct Struct
         }
     }
 
-    Variable* find_variable
-        ( const char* _restrict_ const ini, const char* _restrict_ const end )
+    Variable* find_variable 
+        ( const char* _restrict_ const ini
+        , const char* _restrict_ const end ) const
     {
         Variable* obj;
         if (vars != nullptr){
@@ -391,6 +398,7 @@ struct Token
     int var_type;         /* If the token is a variable, indicates the type.
                           * Basic types are negative, while positive types
                           * are the index as registered in the parser. */
+    Variable* pvar;      /* Pointer if the token is a variable */
 };
 
 struct Parser : gParser
@@ -434,6 +442,7 @@ struct Parser : gParser
             ptok->str_end = end;
             ptok->token_type = token_type;
             ptok->var_type = 0;
+            ptok->pvar = nullptr;
             num_tokens++;
         }
     }

@@ -303,9 +303,14 @@ static const char* parse_tokens
 
         case '*':
             switch (next){
-            //case '*':
-            //    parser_push_2( parser, &p0, &p, token_pow );
-            //    break;
+            case '*':
+                if ((*p + 2) == '='){
+                    parser_push_3( parser, &p0, &p, token_power_assign );
+                }
+                else{
+                    parser_push_2( parser, &p0, &p, token_pow );
+                }
+                break;
             case '=':
                 parser_push_2( parser, &p0, &p, token_mul_assign );
                 break;
@@ -423,9 +428,9 @@ static const char* parse_tokens
 
         case '^':
             if (next == '=')
-                parser_push_2( parser, &p0, &p, token_bitxor_assign );
+                parser_push_2( parser, &p0, &p, token_power_assign );
             else
-                parser_push_1( parser, &p0, &p, token_bitxor );
+                parser_push_1( parser, &p0, &p, token_pow );
             break;
 
         } /* end switch */

@@ -76,14 +76,6 @@ int check_parser( gParser* parser, const char* code )
     return status;
 }
 
-void check_struct()
-{
-    gParser* parser = gParser_create();
-
-    printf( "\n" );
-    check_parser( parser, "struct Vector{ double x, y, z }" );
-    gParser_dispose( parser );
-}
 
 void check_function()
 {
